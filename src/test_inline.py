@@ -1,5 +1,5 @@
 import unittest
-from inline import text_node_to_html_node
+from inline import text_node_to_html_node, split_nodes_delimiter
 from textnode import TextNode, TextType
 
 class TestInline(unittest.TestCase):
@@ -51,6 +51,21 @@ class TestInline(unittest.TestCase):
         node = TextNode("invalid", FakeTextType())
         with self.assertRaises(ValueError):
             text_node_to_html_node(node)
+
+    def test_split_nodes_delimiter_code_block(self):
+        node = TextNode(
+            "This is text with a `code block` word",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+
+        expected_nodes = [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" word", TextType.TEXT),
+        ]
+
+        self.assertEqual(new_nodes, expected_nodes)
 
 if __name__ == "__main__":
     unittest.main()
