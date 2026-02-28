@@ -25,8 +25,6 @@ def text_node_to_html_node(text_node: TextNode):
             return LeafNode(
                 tag="img", value="", props={"src": text_node.url, "alt": text_node.text}
             )
-        case _:
-            raise ValueError("Invalid text type")
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -58,7 +56,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 new_node = TextNode(part, text_type)
 
             new_nodes.append(new_node)
-    print(new_nodes)
+
     return new_nodes
 
 
@@ -73,10 +71,76 @@ def extract_markdown_images(text):
 
 
 def extract_markdown_links(text):
-    pattern = r"\[([^\]]*)\]\(([^)]*)\)"
+    pattern = r"(?<!!)\[([^\]]*)\]\(([^)]*)\)"
     matches = re.finditer(pattern, text)
 
     if not matches:
         return ()
 
     return [match.groups() for match in matches]
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+
+        images = extract_markdown_images(node.text)
+        remaining_text = node.text
+
+        if len(images) == 0:
+            new_nodes.append(node)
+            continue
+
+        for i in range(0, len(images)):
+            alt_text, url = images[i]
+            delimiter = f"![{alt_text}]({url})"
+            part = remaining_text.split(delimiter, 1)
+
+            if len(part) == 2:
+                new_nodes.append(TextNode(part[0], text_type=TextType.TEXT))
+                new_nodes.append(TextNode(alt_text, text_type=TextType.IMAGE, url=url))
+                remaining_text = part[1]
+            else:
+                continue
+        if remaining_text:
+            new_nodes.append(TextNode(remaining_text, text_type=TextType.TEXT))
+
+    return new_nodes
+
+
+def split_nodes_links(old_nodes):
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+
+        images = extract_markdown_links(node.text)
+        remaining_text = node.text
+
+        if len(images) == 0:
+            new_nodes.append(node)
+            continue
+
+        for i in range(0, len(images)):
+            alt_text, url = images[i]
+            delimiter = f"[{alt_text}]({url})"
+            part = remaining_text.split(delimiter, 1)
+
+            if len(part) == 2:
+                new_nodes.append(TextNode(part[0], text_type=TextType.TEXT))
+                new_nodes.append(TextNode(alt_text, text_type=TextType.IMAGE, url=url))
+                remaining_text = part[1]
+            else:
+                continue
+        if remaining_text:
+            new_nodes.append(TextNode(remaining_text, text_type=TextType.TEXT))
+
+    return new_nodes
+
+
+def text_to_textnodes(text):
+    pass
