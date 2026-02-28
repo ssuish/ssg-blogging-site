@@ -1,4 +1,4 @@
-from multiprocessing import Value
+import re
 from textnode import TextNode, TextType
 from leafnode import LeafNode
 
@@ -28,6 +28,7 @@ def text_node_to_html_node(text_node: TextNode):
         case _:
             raise ValueError("Invalid text type")
 
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
@@ -55,8 +56,27 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 new_node = TextNode(part, TextType.TEXT)
             else:
                 new_node = TextNode(part, text_type)
-            
+
             new_nodes.append(new_node)
     print(new_nodes)
     return new_nodes
 
+
+def extract_markdown_images(text):
+    pattern = r"!\[([^\]]*)\]\(([^)]*)\)"
+    matches = re.finditer(pattern, text)
+
+    if not matches:
+        return ()
+
+    return [match.groups() for match in matches]
+
+
+def extract_markdown_links(text):
+    pattern = r"\[([^\]]*)\]\(([^)]*)\)"
+    matches = re.finditer(pattern, text)
+
+    if not matches:
+        return ()
+
+    return [match.groups() for match in matches]

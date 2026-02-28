@@ -1,5 +1,5 @@
 import unittest
-from inline import text_node_to_html_node, split_nodes_delimiter
+from inline import extract_markdown_images, extract_markdown_links, text_node_to_html_node, split_nodes_delimiter
 from textnode import TextNode, TextType
 
 class TestInline(unittest.TestCase):
@@ -35,13 +35,15 @@ class TestInline(unittest.TestCase):
         self.assertEqual(html_node.props, {"href": "https://example.com"})
 
     def test_image_text(self):
-        node = TextNode("alt text", TextType.IMAGE, url="https://example.com/image.png")
+        node = TextNode(
+            "alt text", TextType.IMAGE, url="https://i.imgur.com/zjjcJKZ.png"
+        )
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, "img")
         self.assertEqual(html_node.value, "")
         self.assertEqual(
             html_node.props,
-            {"src": "https://example.com/image.png", "alt": "alt text"},
+            {"src": "https://i.imgur.com/zjjcJKZ.png", "alt": "alt text"},
         )
 
     def test_invalid_text_type_raises(self):
@@ -66,6 +68,18 @@ class TestInline(unittest.TestCase):
         ]
 
         self.assertEqual(new_nodes, expected_nodes)
+
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
+
+    def text_extract_markdown_link(self):
+        matches = extract_markdown_links(
+            "This is text with an [example link](https://example.com)"
+        )
+        self.assertListEqual([("example link", "https://example.com")], matches)
 
 if __name__ == "__main__":
     unittest.main()
