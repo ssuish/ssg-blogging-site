@@ -6,6 +6,7 @@ from inline import (
     split_nodes_links,
     text_node_to_html_node,
     split_nodes_delimiter,
+    text_to_textnodes
 )
 from textnode import TextNode, TextType
 
@@ -116,11 +117,57 @@ class TestInline(unittest.TestCase):
         self.assertListEqual(
             [
                 TextNode("This is text with an ", TextType.TEXT),
-                TextNode("example link 1", TextType.IMAGE, "https://example.com"),
+                TextNode("example link 1", TextType.LINK, "https://example.com"),
                 TextNode(" and another ", TextType.TEXT),
-                TextNode("example link 2", TextType.IMAGE, "https://example.org"),
+                TextNode("example link 2", TextType.LINK, "https://example.org"),
             ],
             new_nodes,
+        )
+
+    def test_text_to_textnodes_plain(self):
+        text = "Just plain text"
+        nodes = text_to_textnodes(text)
+        self.assertEqual(nodes, [TextNode("Just plain text", TextType.TEXT)])
+
+    def test_text_to_textnodes_bold(self):
+        text = "This is **bold** text"
+        nodes = text_to_textnodes(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" text", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_mixed(self):
+        text = "This is **bold** and *italic* and `code` text"
+        nodes = text_to_textnodes(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" and ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" and ", TextType.TEXT),
+                TextNode("code", TextType.CODE),
+                TextNode(" text", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_with_link_and_image(self):
+        text = "This is text with a [link](https://example.com) and an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        nodes = text_to_textnodes(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode("This is text with a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://example.com"),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+            ],
         )
 
 
