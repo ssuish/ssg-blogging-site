@@ -56,3 +56,20 @@ def block_to_block_type(block):
         return BlockType.ORDERED_LIST
 
     return BlockType.PARAGRAPH
+
+# TODO: Create helper functions to handle block type to html tag, then use it to build ParentNode. Note: Quote is <blockquote>
+# TODO: Handle special cases for code block: <pre><code> value </code></pre>
+# TODO: Handle special case for ol and ul: <ul><li> value </li> ... </ul>
+# TODO: Handle special case for headings: <h1> ... <h6> Note: Should count based on the number of '#' chars
+
+
+def markdown_to_html_node(text):
+    blocks = markdown_to_blocks(text)
+
+    for block in blocks:
+        block_type = block_to_block_type(block)
+
+# TODO: text_to_children should handle inline markdown within each block
+
+def text_to_children(text):
+    pass
