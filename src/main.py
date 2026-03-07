@@ -1,5 +1,6 @@
 import os
 import shutil
+from generate_page import generate_page
 
 
 def copy_files(source_dir, dest_dir):
@@ -29,6 +30,7 @@ def static_to_public():
 
 def main():
     static_to_public()
+    generate_page('content/index.md', 'template.html', 'public/index.html')
 
 
 if __name__ == "__main__":
