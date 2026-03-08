@@ -36,20 +36,12 @@ def main():
     basepath = None
 
     static_to_public()
+
+    basepath = "/"
     if len(sys.argv) > 1:
         basepath = sys.argv[1]
-        generate_page_recursive(
-            dir_path_content,
-            template_path,
-            public_dir_abs,
-            basepath,
-        )
 
-    generate_page_recursive(
-        dir_path_content,
-        template_path,
-        public_dir_abs,
-    )
+    generate_page_recursive(dir_path_content, template_path, public_dir_abs, basepath)
 
 
 if __name__ == "__main__":
